@@ -13,7 +13,10 @@ class ListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(iconData),
+      leading: Icon(
+        iconData,
+        color: const Color.fromARGB(255, 5, 69, 7)
+        ),
       title: Text(itemName),
       subtitle: Text(price),
       trailing: ActionItem(),
@@ -41,7 +44,14 @@ class _ActionItemState extends State<ActionItem> {
           setState(() {
             counter++;
           });
-        }, icon: Icon(Icons.add))
+        }, icon: Icon(Icons.add)),
+        IconButton(onPressed:() {
+          if (counter > 0) {
+            setState(() {
+                counter--;
+            });
+        }
+        }, icon: Icon(Icons.remove)),
       ]
     );
   }
@@ -104,13 +114,13 @@ class ConfirmSelection extends StatelessWidget {
           builder: (context) {
             return AlertDialog(
               title: Text("Order Confirmed"),
-              content: Text("Your checkout order has been submitted"),
+              content: Text("Your order has been submitted, thank you for your business!"),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   }, 
-                  child: Text("Dismiss"))
+                  child: Text("Close"))
               ],
             );
           }
@@ -134,6 +144,7 @@ class MyApp extends StatelessWidget {
         colorScheme: .fromSeed(seedColor: Colors.lightGreen),
       ),
       home: const MyHomePage(title: 'Gardening Store'),
+      
     );
   }
 }
@@ -175,6 +186,11 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        leading: Icon(
+          Icons.yard,
+          size: 36,
+          color: const Color.fromARGB(255, 5, 69, 7)
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -184,8 +200,20 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 children: [
                   ListItem(iconData: Icons.local_florist, itemName: "Flowers", price: "9.99"),
-                  ListItem(iconData: Icons.forest, itemName: "Trees", price: "39.99"),
+                  Divider(
+                    color: Colors.lightGreen,
+                    thickness: 1
+                  ),
                   ListItem(iconData: Icons.grass, itemName: "Shrubs", price: "19.99"),
+                  Divider(
+                    color: Colors.lightGreen,
+                    thickness: 1
+                  ),
+                  ListItem(iconData: Icons.forest, itemName: "Trees", price: "39.99"),
+                  Divider(
+                    color: Colors.lightGreen,
+                    thickness: 1
+                  ),
                   ListItem(iconData: Icons.fence, itemName: "Fencing", price: "29.99")
                 ]
               ),
