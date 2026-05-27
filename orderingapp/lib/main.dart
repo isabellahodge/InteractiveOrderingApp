@@ -7,8 +7,11 @@ void main() {
 class ListItem extends StatelessWidget {
   final IconData iconData;
   final String itemName;
-  final String price;
-  const ListItem({super.key, required this.iconData, required this.itemName, required this.price});
+  final double price;
+  final int quantity;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+  const ListItem({super.key, required this.iconData, required this.itemName, required this.price, required this.quantity, required this.onAdd, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -18,21 +21,21 @@ class ListItem extends StatelessWidget {
         color: const Color.fromARGB(255, 5, 69, 7)
         ),
       title: Text(itemName),
-      subtitle: Text(price),
-      trailing: ActionItem(),
+      subtitle: Text(price.toString()),
+      trailing: ActionItem(
+        counter: quantity,
+        onAdd: onAdd,
+        onRemove: onRemove
+      ),
     );
   }
 }
 
-class ActionItem extends StatefulWidget {
-  const ActionItem({super.key});
-
-  @override
-  State<ActionItem> createState() => _ActionItemState();
-}
-
-class _ActionItemState extends State<ActionItem> {
-  int counter = 0;
+class ActionItem extends StatelessWidget {
+  final int counter;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+  const ActionItem({super.key, required this.counter, required this.onAdd, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -40,18 +43,12 @@ class _ActionItemState extends State<ActionItem> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text("$counter"),
-        IconButton(onPressed:() {
-          setState(() {
-            counter++;
-          });
-        }, icon: Icon(Icons.add)),
-        IconButton(onPressed:() {
-          if (counter > 0) {
-            setState(() {
-                counter--;
-            });
-        }
-        }, icon: Icon(Icons.remove)),
+        IconButton(
+          onPressed: onAdd, 
+          icon: Icon(Icons.add)),
+        IconButton(
+          onPressed: counter > 0 ? onRemove : null, 
+          icon: Icon(Icons.remove)),
       ]
     );
   }
@@ -152,15 +149,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -168,23 +156,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final List gardenItems = [
+    {'icon': Icons.local_florist, 'name': 'Flowers', 'price': 9.99, 'quantity': 0},
+    {'icon': Icons.grass, 'name': 'Shrubs', 'price': 19.99, 'quantity': 0},
+    {'icon': Icons.forest, 'name': 'Trees', 'price': 39.99, 'quantity': 0},
+    {'icon': Icons.fence, 'name': 'Fencing', 'price': 29.99, 'quantity': 0},
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         leading: Icon(
           Icons.yard,
@@ -199,23 +182,22 @@ class _MyHomePageState extends State<MyHomePage> {
             Card(
               child: Column(
                 children: [
-                  ListItem(iconData: Icons.local_florist, itemName: "Flowers", price: "9.99"),
-                  Divider(
-                    color: Colors.lightGreen,
-                    thickness: 1
-                  ),
-                  ListItem(iconData: Icons.grass, itemName: "Shrubs", price: "19.99"),
-                  Divider(
-                    color: Colors.lightGreen,
-                    thickness: 1
-                  ),
-                  ListItem(iconData: Icons.forest, itemName: "Trees", price: "39.99"),
-                  Divider(
-                    color: Colors.lightGreen,
-                    thickness: 1
-                  ),
-                  ListItem(iconData: Icons.fence, itemName: "Fencing", price: "29.99")
-                ]
+                  for (int i = 0; i < gardenItems.length; i++) ...[
+                    ListItem(
+                      iconData: gardenItems[i]['icon'], 
+                      itemName: gardenItems[i]['name'], 
+                      price: gardenItems[i]['price'],
+                      quantity: gardenItems[i]['quantity'],
+                      onAdd: () => setState(() => gardenItems[i]['quantity']++),
+                      onRemove: () => setState(() => gardenItems[i]['quantity']--),
+                    ),
+                    if (i < gardenItems.length -1) 
+                      Divider(
+                        color: Colors.lightGreen,
+                        thickness: 1
+                      ),
+                  ]
+                ],
               ),
             ),
             SizedBox(height: 15),
