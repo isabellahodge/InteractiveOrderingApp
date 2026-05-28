@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
 
+//Gardening Store Interactive Ordering App Program
 void main() {
   runApp(const MyApp());
 }
 
+//widget to display gardening item options
 class ListItem extends StatelessWidget {
   final IconData iconData;
   final String itemName;
   final double price;
   final int quantity;
+  //(!) new feature explored: used callbacks as a way to extend the 
+  //scope of certain traits I needed to use in different widget classes.
+  //in this case I used it for tracking the addition or removal of an item's
+  //quantity to be used when calculating the total cost of a purchase.
   final VoidCallback onAdd;
   final VoidCallback onRemove;
-  const ListItem({super.key, required this.iconData, required this.itemName, required this.price, required this.quantity, required this.onAdd, required this.onRemove});
+  const ListItem({
+    super.key, 
+    required this.iconData, 
+    required this.itemName, 
+    required this.price, 
+    required this.quantity, 
+    required this.onAdd, 
+    required this.onRemove
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +33,7 @@ class ListItem extends StatelessWidget {
       leading: Icon(
         iconData,
         color: const Color.fromARGB(255, 5, 69, 7)
-        ),
+      ),
       title: Text(itemName),
       subtitle: Text(price.toString()),
       trailing: ActionItem(
@@ -31,6 +45,7 @@ class ListItem extends StatelessWidget {
   }
 }
 
+//widget to display the selection or deselection of an item
 class ActionItem extends StatelessWidget {
   final int counter;
   final VoidCallback onAdd;
@@ -45,16 +60,22 @@ class ActionItem extends StatelessWidget {
         Text("$counter"),
         IconButton(
           onPressed: onAdd, 
-          icon: Icon(Icons.add)),
+          icon: Icon(Icons.add)
+        ),
         IconButton(
           onPressed: counter > 0 ? onRemove : null, 
-          icon: Icon(Icons.remove)),
+          icon: Icon(Icons.remove)
+        ),
       ]
     );
   }
 }
 
+//conditional UI element
+//widget displaying tip amount chosen if tip toggle is on
 class TipSelector extends StatefulWidget {
+  //(!) new feature explored: another callback instance to track if
+  //tip toggle is on and tip percentage, used when calculating total cost.
   final void Function(bool addTip, int selectedTip) onTipChange;
   const TipSelector({super.key, required this.onTipChange});
 
@@ -78,7 +99,7 @@ class _TipSelectorState extends State<TipSelector> {
             setState(() {
               addTip = value;
             });
-            widget.onTipChange(addTip, selectedTip);
+            widget.onTipChange(value, selectedTip);
           }),
 
           if (addTip)
@@ -102,6 +123,7 @@ class _TipSelectorState extends State<TipSelector> {
   }
 }
 
+//widget to display the total price based on the user's selections
 class ViewTotal extends StatelessWidget {
   final double subtotal;
   final double total;
@@ -112,6 +134,7 @@ class ViewTotal extends StatelessWidget {
     return Column(
       children: [
         Card(
+          //(!) new styling feature explored: a border around the widget card
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
             side: BorderSide(color: Colors.lightGreen, width: 1),
@@ -131,6 +154,7 @@ class ViewTotal extends StatelessWidget {
   }
 }
 
+//button widget displaying confirmation message when order submitted
 class ConfirmSelection extends StatelessWidget {
   const ConfirmSelection({super.key});
 
@@ -138,6 +162,7 @@ class ConfirmSelection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: ElevatedButton(
+        //(!) new styling feature explored: modified button color and size
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromARGB(255, 5, 69, 7),
           foregroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -168,17 +193,16 @@ class ConfirmSelection extends StatelessWidget {
   }
 }
 
+//widget displaying app identifiers
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Interactive Ordering App',
       theme: ThemeData(
-        // This is the theme of your application.
-        colorScheme: .fromSeed(seedColor: Colors.lightGreen),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
       ),
       home: const MyHomePage(title: 'Gardening Store'),
       
@@ -186,6 +210,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//widget to display cohesive main screen
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -198,14 +223,17 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool tipIncluded = false;
   int tipAmount = 10;
+
+  //list of five order items
   final List gardenItems = [
     {'icon': Icons.local_florist, 'name': 'Flowers', 'price': 9.99, 'quantity': 0},
     {'icon': Icons.grass, 'name': 'Shrubs', 'price': 19.99, 'quantity': 0},
     {'icon': Icons.forest, 'name': 'Trees', 'price': 39.99, 'quantity': 0},
+    {'icon': Icons.emoji_nature, 'name': 'Fertilizer', 'price': 9.99, 'quantity': 0},
     {'icon': Icons.fence, 'name': 'Fencing', 'price': 29.99, 'quantity': 0},
   ];
 
-
+  //helpers for calculating total
   var subtotalPrice = (List gardenItems) {
     double subtotal = 0;
     for (var item in gardenItems) {
@@ -217,7 +245,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var totalPrice = (double subtotal, bool tipIncluded, int tipAmount) {
     double total = subtotal;
     if (tipIncluded) {
-      total += 1 + (tipAmount / 100);
+      total *= (1 + tipAmount / 100);
     }
     return total;
   };
@@ -239,6 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           children: [
             Card(
+              //(!) new styling feature explored: a border around the widget card
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(color: Colors.lightGreen, width: 1),
@@ -254,7 +283,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       onAdd: () => setState(() => gardenItems[i]['quantity']++),
                       onRemove: () => setState(() => gardenItems[i]['quantity']--),
                     ),
-                    if (i < gardenItems.length - 1) 
+                    if (i < gardenItems.length - 1)
+                      //(!) new styling feature explored: a divider between listed items 
                       Divider(
                         color: Colors.lightGreen,
                         thickness: 1
@@ -263,9 +293,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            SizedBox(height: 15,
-            ),
+            SizedBox(height: 15),
             Card(
+              //(!) new styling feature explored: a border around the widget card
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(color: Colors.lightGreen, width: 1),
